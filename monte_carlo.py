@@ -1,6 +1,6 @@
 import numpy as np
 
-def simulare_sisune_ruleta(capital_initial, max_runde, prob_castig = 18 / 37):
+def simulare_sesiune_ruleta(capital_initial, max_runde, prob_castig = 18 / 37):
     capital = capital_initial
 
     for runda in range(1, max_runde + 1):
@@ -20,7 +20,7 @@ def ruleaza_monte_carlo(nr_simulari, capital_initial, max_runde, prob_castig = 1
     capital_final = np.empty(nr_simulari, dtype = int)
 
     for i in range(nr_simulari):
-        r, t, c = simulare_sisune_ruleta(capital_initial, max_runde, prob_castig)
+        r, t, c = simulare_sesiune_ruleta(capital_initial, max_runde, prob_castig)
         indicator_ruina[i] = r
         runde_pana_la_oprire[i] = t
         capital_final[i] = c

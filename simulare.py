@@ -2,12 +2,12 @@ from monte_carlo import ruleaza_monte_carlo
 from analiza import calculeaza_estimari, interval_incredere_tlc, plot_convergenta_tlc
 
 def main():
-    nr_simualri = 10000
+    nr_simulari = 10000
     capital_initial = 100
     max_runde = 1000
     prob_castig = 18 / 37
 
-    indicator_ruina, runde_pana_la_oprire, capital_final = ruleaza_monte_carlo(nr_simualri, capital_initial, max_runde, prob_castig)
+    indicator_ruina, runde_pana_la_oprire, capital_final = ruleaza_monte_carlo(nr_simulari, capital_initial, max_runde, prob_castig)
 
     estimari = calculeaza_estimari(indicator_ruina, runde_pana_la_oprire, capital_final)
     print("Estimări Monte Carlo:")
