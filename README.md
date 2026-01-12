@@ -5,79 +5,77 @@
 - timpul mediu până la ruină
 - capitalul final mediu
 
-## 1. Model matematic
-
-## 2. Metoda Monte Carlo
-
-Metoda Monte Carlo constă în simularea unui număr mare de traiectorii independente ale procesului descris mai sus și în estimarea mărimilor de interes prin medii empirice.
-
-Estimatorii Monte Carlo sunt:
-$$\hat{p} = \frac{1}{N} \sum_{i=1}^N I_i, \quad \widehat{E[T]} = \frac{1}{N} \sum_{i=1}^N T_i, \quad \widehat{E[C]} = \frac{1}{N} \sum_{i=1}^N C_i$$
-
-## 3. Teorema Limită Centrală și analiza erorilor
-
-Fie $(X_n)_{n \ge 1}$ variabile aleatoare independente și identic distribuite, cu $\mathrm{Var}(X_1) = \sigma^2 < \infty$.
-
-Atunci, media empirică:
-$$\overline{S_n} = \frac{1}{n} \sum_{i=1}^n X_i$$
-
-converge în distribuție conform Teoremei Limită Centrale:
-$$\overline{S_n} \xRightarrow{\text{D}} \mathcal{N}\left( \mu, \frac{\sigma^2}{n} \right)$$
-
-Această proprietate permite construirea intervalelor de încredere de nivel $1 - \alpha$:
-$$\mu \in \left[\overline{S_n} - z \sqrt{\frac{\sigma^2}{n}}, \overline{S_n} + z \sqrt{\frac{\sigma^2}{n}}\right]$$
-
-## 4. Implementarea simulării
+## Implementarea simulării
 
 Structura proiectului este următoarea:
 ```text
 .
-├── ruleta.py        # simulare Monte Carlo simplă pentru o rundă
-├── monte_carlo.py   # simularea sesiunilor de joc
-├── analiza.py       # estimări statistice, intervale de încredere și grafice
-└── simulare.py      # script principal de rulare
+├── constants.py    # parametrii globali ai simulării
+├── roulette.py     # simularea unei runde de ruletă
+├── strategies.py   # strategii de pariere
+├── monte_carlo.py  # simularea sesiunilor de joc
+├── analysis.py     # estimări statistice și grafice
+└── main.py         # script principal de rulare
 ```
 
-### 4.1. Simularea unei sesiuni de joc (`monte_carlo.py`)
+### Simularea unei runde de ruletă (`roulette.py`)
 
-Funcția `simuleaza_sesiune_ruleta` modelează evoluția capitalului unui jucător pe parcursul unei sesiuni de joc, presupunând un pariu constant de o unitate pe rundă. Capitalul este actualizat la fiecare pas în funcție de rezultatul aleator al ruletei.
+Fișierul `roulette.py` conține funcții care modelează rezultatul unei singure runde de ruletă. Rezultatul este generat aleator, în concordanță cu probabilitățile reale ale jocului, iar câștigul sau pierderea jucătorului sunt determinate în funcție de tipul pariului efectuat.
+Acest modul este utilizat ca element de bază în simularea sesiunilor de joc.
 
-Funcția returnează:
-- un indicator de ruină ($1$ dacă jucătorul ajunge la capital nul înainte de $T$ sau $0$ altfel)
-- numărul de runde jucate până la ruină sau până la oprire
-- capitalul final
+### Strategii de pariere (`strategies.py`)
 
-### 4.2. Rularea simulărilor Monte Carlo (`monte_carlo.py`)
+Fișierul `strategies.py` implementează diferite strategii de pariere, care stabilesc valoarea pariului la fiecare rundă în funcție de istoricul jocului. Printre strategiile implementate se numără:
+- strategia cu pariu constant (*flat betting*)
+- strategia *Martingale*
+- strategia *Fibonacci*
+Aceste strategii sunt utilizate pentru a compara comportamentul capitalului și riscul de ruină în funcție de metoda de pariere aleasă.
 
-Funcția `ruleaza_monte_carlo` repetă simularea unei sesiuni de joc de $N$ ori, considerând traiectorii independente ale procesului stochastic. Pentru fiecare simulare sunt colectate:
+### Simularea unei sesiuni de joc (`monte_carlo.py`)
+
+Fișierul `monte_carlo.py` conține funcția care simulează o sesiune completă de joc. O sesiune constă într-o succesiune de runde de ruletă, în care capitalul jucătorului este actualizat la fiecare pas, în funcție de rezultatul rundei și de strategia de pariere utilizată.
+Simularea se oprește atunci când capitalul jucătorului ajunge la zero (ruină) sau este atins un număr maxim de runde prestabilit.
+Pentru fiecare sesiune sunt returnate:
+- un indicator de ruină
+- numărul de runde jucate
+- capitalul final al jucătorului
+
+### Rularea simulărilor Monte Carlo (`monte_carlo.py`)
+
+Tot în fișierul `monte_carlo.py`, este implementată funcția care rulează un număr mare de simulări independente ale sesiunii de joc. Pentru fiecare simulare sunt colectate:
 - variabila indicator de ruină
-- timpul până la oprire
+- timpul până la oprirea jocului
 - capitalul final
+Rezultatele sunt stocate în structuri de tip `numpy.array` și sunt utilizate ulterior în analiza statistică.
 
-Rezultatele sunt reprezentate în `np.array`-uri, care sunt utilizate ulterior în analiza statistică.
+### Analiza statistică și reprezentări grafice (`analysis.py`)
 
-### 4.3. Estimări statistice, intervale de încredere și grafice (`analiza.py`)
+Fișierul `analysis.py` conține funcții pentru prelucrarea rezultatelor obținute prin simulare. Sunt calculate:
+- estimatori Monte Carlo pentru probabilitatea de ruină, timpul mediu până la oprire și capitalul final mediu
+- intervale de încredere de 95%, bazate pe *Teorema Limită Centrală*
+- grafice de convergență ale estimărilor Monte Carlo
+Graficele ilustrează evoluția mediei cumulative a estimărilor și evidențiază rata de convergență de ordinul \frac{1}{\sqrt{n}}.
 
-Pe baza eșantionului obținut, funcția `calculeaza_estimari` determină estimatori Monte Carlo pentru cantitățile de interes, utilizând medii empirice.
+### Scriptul principal(`main.py`)
 
-Pentru analiza erorilor, funcția `interval_incredere_tlc` construiește intervale de încredere de 95%, folosind aproximația normală furnizată de Teorema Limită Centrală.
+Fișierul `main.py` coordonează rularea întregii simulări. Acesta:
+- inițializează parametrii
+- rulează simulările Monte Carlo pentru diferite strategii
+- afișează rezultatele numerice
+- generează graficele comparative
 
-Funcția `plot_convergenta_tlc` reprezintă grafic evoluția mediei cumulative a estimării Monte Carlo. Sunt afișate:
+### Parametrii globali (`constants.py`)
 
-- curba mediei cumulative $\overline{S_k}$
-- o linie orizontală corespunzătoare estimării finale $\bar \mu$
-- benzi de încredere de forma $\pm z\sqrt{\sigma^2/k}$, care evidențiază rata de convergență $\frac{1}{\sqrt k}$.
+Fișierul `constants.py` conține parametrii principali ai simulării, precum:
+- capitalul inițial
+- numărul maxim de runde
+- numărul de simulări Monte Carlo
+- probabilitatea de câștig la o rundă
+Modificarea acestor valori permite explorarea diferitelor scenarii de joc.
 
 ## 5. Utilizare
 
-Parametrii principali (`N`, `C0`, `T`) pot fi modificați direct în fișierul `simulare.py`.
-
-Rulare:
-
+Pentru rularea simulării, parametrii pot fi ajustați în fișierul `constants.py`, după care scriptul principal se rulează cu:
 ```bash
-python3 simulare.py
+python3 main.py
 ```
-
-## 6. Concluzii
-
-## 7. Referințe bibliografice
