@@ -1,89 +1,82 @@
+import random
 import matplotlib.pyplot as plt
 import numpy as np
-import monte_carlo
-import analysis
+from constants import BET_TYPES, TOTAL_SLOTS
 import strategies
 
-def get_running_average(data):
-    return np.cumsum(data) / np.arange(1, len(data) + 1)
+STARTING_BANKROLL = 1000
+UNIT_SIZE = 10
+NUM_SPINS = 1000
+NUM_SIMULATIONS = 50
 
-def plot_convergence(r_flat, r_mart, r_fib):
-    plt.figure(figsize=(10, 6))
-    
-    avg_flat = get_running_average(r_flat)
-    avg_mart = get_running_average(r_mart)
-    avg_fib = get_running_average(r_fib)
-    
-    plt.plot(avg_flat, label='flat bet', linewidth=2)
-    plt.plot(avg_mart, label='martingale', linewidth=2)
-    plt.plot(avg_fib, label='fibonacci', linewidth=2)
-    
-    plt.xlabel('number of simulations')
-    plt.ylabel('estimated probability of ruin')
-    plt.title('convergence of ruin probability estimates')
-    plt.legend()
-    plt.grid(True, alpha=0.3)
-    plt.savefig('graph_convergence_ruin.png')
-    plt.close()
-    print("generated: graph_convergence_ruin.png")
+STRATEGY_LIST = [
+    strategies.strategy_flat,
+    strategies.strategy_martingale,
+    strategies.strategy_fibonacci
+]
 
-def plot_time_histogram(t_flat, t_mart, t_fib):
-    plt.figure(figsize=(10, 6))
+def run_simulation(strategy_func, win_prob, payout):
+    bankroll = STARTING_BANKROLL
+    history = [bankroll]
+    current_bet_units = 1
     
-    plt.hist(t_flat, bins=30, alpha=0.5, label='flat bet', density=True)
-    plt.hist(t_mart, bins=30, alpha=0.5, label='martingale', density=True)
-    plt.hist(t_fib, bins=30, alpha=0.5, label='fibonacci', density=True)
-    
-    plt.xlabel('rounds played before ruin/stop')
-    plt.ylabel('frequency (density)')
-    plt.title('distribution of session duration')
-    plt.legend()
-    plt.grid(True, alpha=0.3)
-    plt.savefig('graph_time_histogram.png')
-    plt.close()
-    print("generated: graph_time_histogram.png")
+    for _ in range(NUM_SPINS):
+        if bankroll <= 0:
+            break
 
-def compare_strategies():
-    print("\n" + "="*80)
-    print(" experiment: flat bet vs. martingale vs. fibonacci")
-    print("="*80)
-    
-    n = 5000
-    c0 = 100
-    max_rounds = 1000
-    prob = 18/37
-    
-    print(f"1. running flat bet ({n} simulations)")
-    r_flat, t_flat, c_flat = monte_carlo.run_monte_carlo(
-        n, c0, max_rounds, prob, 
-        strategy_func=strategies.strategy_flat
-    )
-    est_flat = analysis.compute_estimates(r_flat, t_flat, c_flat)
-    
-    print(f"2. running martingale ({n} simulations)")
-    r_mart, t_mart, c_mart = monte_carlo.run_monte_carlo(
-        n, c0, max_rounds, prob, 
-        strategy_func=strategies.strategy_martingale
-    )
-    est_mart = analysis.compute_estimates(r_mart, t_mart, c_mart)
+        wager = current_bet_units * UNIT_SIZE
+        if wager > bankroll:
+            wager = bankroll
+            current_bet_units = wager / UNIT_SIZE
 
-    print(f"3. running fibonacci ({n} simulations)")
-    r_fib, t_fib, c_fib = monte_carlo.run_monte_carlo(
-        n, c0, max_rounds, prob, 
-        strategy_func=strategies.strategy_fibonacci
-    )
-    est_fib = analysis.compute_estimates(r_fib, t_fib, c_fib)
-    
-    print("\ncomparative results:")
-    print(f"{'metric':<22} | {'flat bet':<12} | {'martingale':<12} | {'fibonacci':<12}")
-    print("-" * 70)
-    print(f"{'ruin probability':<22} | {est_flat['ruin_probability']:.4f}       | {est_mart['ruin_probability']:.4f}       | {est_fib['ruin_probability']:.4f}")
-    print(f"{'avg time (rounds)':<22} | {est_flat['average_time_to_stop']:.1f}       | {est_mart['average_time_to_stop']:.1f}       | {est_fib['average_time_to_stop']:.1f}")
-    print(f"{'avg final capital':<22} | {est_flat['average_final_capital']:.1f}       | {est_mart['average_final_capital']:.1f}       | {est_fib['average_final_capital']:.1f}")
+        win = random.random() < win_prob
+        
+        if win:
+            bankroll += wager * payout
+        else:
+            bankroll -= wager
+        
+        history.append(bankroll)
+        current_bet_units = strategy_func(win, current_bet_units)
+        
+    return history
 
-    print("\ngenerating graphs")
-    plot_convergence(r_flat, r_mart, r_fib)
-    plot_time_histogram(t_flat, t_mart, t_fib)
+def analyze_and_plot():
+    print(f"{'BET TYPE':<15} | {'STRATEGY':<12} | {'AVG FINAL':<10} | {'RUIN %':<8}")
+    print("-" * 55)
+
+    for bet_name, (numbers, payout) in BET_TYPES.items():
+        win_prob = numbers / TOTAL_SLOTS
+        
+        plt.figure(figsize=(10, 6))
+        
+        for strat in STRATEGY_LIST:
+            strat_name = strat.__name__.replace('strategy_', '')
+            final_balances = []
+            rep_history = []
+            ruins = 0
+            
+            for i in range(NUM_SIMULATIONS):
+                hist = run_simulation(strat, win_prob, payout)
+                final_balances.append(hist[-1])
+                if hist[-1] <= 0:
+                    ruins += 1
+                if i == 0:
+                    rep_history = hist
+            
+            print(f"{bet_name:<15} | {strat_name:<12} | ${np.mean(final_balances):<9.0f} | {(ruins / NUM_SIMULATIONS)*100:.1f}%")
+            plt.plot(rep_history, label=strat_name)
+
+        plt.title(f"Simulation: {bet_name} (Payout {payout}:1)")
+        plt.xlabel("Spins")
+        plt.ylabel("Bankroll")
+        plt.axhline(STARTING_BANKROLL, color='black', linestyle='--', alpha=0.3)
+        plt.legend()
+        plt.grid(True, alpha=0.3)
+        
+        filename = f"sim_{bet_name.replace(' ', '_')}.png"
+        plt.savefig(f"plots/{filename}")
+        plt.close()
 
 if __name__ == "__main__":
-    compare_strategies()
+    analyze_and_plot()

@@ -3,20 +3,20 @@ import numpy as np
 ROULETTE_LAYOUT = np.array([0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26])
 
 BET_TYPES = {
-    "straight": 35,
-    "split": 17,
-    "street": 11,
-    "basket": 11,
-    "first_four": 8,
-    "top_line": 8,
-    "corner": 8,
-    "double_street": 5,
-    "dozen": 2,
-    "column": 2,
-    "snake": 2,
-    "even_odd": 1,
-    "red_black": 1,
-    "low_high": 1
+    "straight": (1, 35),
+    "split": (2, 17),
+    "street": (3, 11),
+    "basket": (3, 11),
+    "first_four": (4, 8),
+    "top_line": (4, 8),
+    "corner": (4, 8),
+    "double_street": (6, 5),
+    "dozen": (12, 2),
+    "column": (12, 2),
+    "snake": (12, 2),
+    "even_odd": (18, 1),
+    "red_black": (18, 1),
+    "low_high": (18, 1)
 }
 
 STRAIGHT_BETS = np.array([i for i in range(37)])
@@ -55,3 +55,5 @@ ODD_BETS = EVEN_ODD_BETS[1]
 
 LOW_BETS = LOW_HIGH_BETS[0]
 HIGH_BETS = LOW_HIGH_BETS[1]
+
+TOTAL_SLOTS = 37
