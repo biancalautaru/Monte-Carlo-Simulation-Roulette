@@ -1,138 +1,91 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from constante import TIPURI_PARIURI, NUMERE_ROSII, NUMERE_NEGRE, NUMERE_SNAKE
+import constante as c
 
-def get_winning_numbers(tip_pariu, numar_ales):
+SIMPLE_BETS_MAP = {
+    "red": c.RED_BETS,
+    "black": c.BLACK_BETS,
+    "even": c.EVEN_BETS,
+    "odd": c.ODD_BETS,
+    "low": c.LOW_BETS,
+    "high": c.HIGH_BETS,
+    "snake": c.SNAKE_BETS
+}
 
-    if tip_pariu == "straight":
-        return [numar_ales]
+def get_winning_numbers(bet_type, bet_data):
+    if bet_type == "straight":
+        return [bet_data]
     
-    elif tip_pariu in ["split", "street", "corner", "double_street", "basket", "first_four", "top_line"]:
-        if tip_pariu == "basket" and numar_ales is None:
-            return [0, 1, 2]
-        if (tip_pariu == "first_four" or tip_pariu == "top_line") and numar_ales is None:
-            return [0, 1, 2, 3]
-
-        if isinstance(numar_ales, int):
-            if tip_pariu == "street":
-                return [numar_ales, numar_ales + 1, numar_ales + 2]
-            if tip_pariu == "double_street":
-                return [numar_ales + i for i in range(6)]
-
-        if not isinstance(numar_ales, (list, tuple, np.ndarray)):
-             raise ValueError(f"Pentru {tip_pariu}, trebuie specificată o listă de numere sau un număr de start valid.")
-    
-        nums = list(numar_ales)
-        if tip_pariu == "split" and len(nums) != 2:
-            raise ValueError("Pariul 'split' necesită exact 2 numere.")
-        if tip_pariu == "street" and len(nums) != 3:
-             raise ValueError("Pariul 'street' necesită exact 3 numere.")
-        if tip_pariu == "corner" and len(nums) != 4:
-             raise ValueError("Pariul 'corner' necesită exact 4 numere.")
-        if tip_pariu == "double_street" and len(nums) != 6:
-             raise ValueError("Pariul 'double_street' necesită exact 6 numere.")
+    if bet_type == "dozen":
+        return c.DOZEN_BETS[bet_data - 1]
         
-        return nums
+    if bet_type == "column":
+        return c.COLUMN_BETS[bet_data - 1]
+        
+    if bet_type in ["red_black", "even_odd", "low_high"]:
+        return SIMPLE_BETS_MAP[bet_data]
+        
+    if bet_type == "snake":
+        return c.SNAKE_BETS
+        
+    # For split, street, corner, double_street, basket, first_four, top_line
+    # we assume bet_data is the list of winning numbers.
+    return bet_data
 
-    elif tip_pariu == "red_black":
-        if numar_ales in ["red", "roșu", "rosu"]: return NUMERE_ROSII
-        if numar_ales in ["black", "negru"]: return NUMERE_NEGRE
-        raise ValueError("Pentru 'red_black', alegeți 'roșu' sau 'negru'.")
-
-    elif tip_pariu == "even_odd":
-        if numar_ales in ["even", "par"]: return [i for i in range(1, 37) if i % 2 == 0]
-        if numar_ales in ["odd", "impar"]: return [i for i in range(1, 37) if i % 2 != 0]
-        raise ValueError("Pentru 'even_odd', alegeți 'par' sau 'impar'.")
-
-    elif tip_pariu == "low_high":
-        if numar_ales in ["low", "mic"]: return list(range(1, 19))
-        if numar_ales in ["high", "mare"]: return list(range(19, 37))
-        raise ValueError("Pentru 'low_high', alegeți 'mic' sau 'mare'.")
-
-    elif tip_pariu == "dozen":
-        if numar_ales == 1: return list(range(1, 13))
-        if numar_ales == 2: return list(range(13, 25))
-        if numar_ales == 3: return list(range(25, 37))
-        raise ValueError("Pentru 'dozen', alegeți 1, 2 sau 3.")
-
-    elif tip_pariu == "column":
-        if numar_ales == 1: return list(range(1, 37, 3))
-        if numar_ales == 2: return list(range(2, 37, 3))
-        if numar_ales == 3: return list(range(3, 37, 3))
-        raise ValueError("Pentru 'column', alegeți 1, 2 sau 3.")
-
-    elif tip_pariu == "snake":
-        return NUMERE_SNAKE
+def simulate_roulette(num_simulations, bet_type, bet_data=None):
+    payout = c.BET_TYPES[bet_type]
+    winning_numbers = get_winning_numbers(bet_type, bet_data)
     
-    else:
-        raise ValueError(f"Tip pariu necunoscut sau neimplementat: {tip_pariu}")
-
-def simulare_ruleta(nr_simulari, tip_pariu, numar_ales = None):
-    if tip_pariu not in TIPURI_PARIURI:
-        raise ValueError(f"Tip pariu invalid: {tip_pariu}. Opțiuni: {list(TIPURI_PARIURI.keys())}")
-
-    cota = TIPURI_PARIURI[tip_pariu]
+    results = np.random.randint(0, 37, size=num_simulations)
+    winnings = np.where(np.isin(results, winning_numbers), payout, -1)
     
-    winning_numbers = get_winning_numbers(tip_pariu, numar_ales)
+    return winnings
+
+def calculate_average_win(winnings):
+    return np.mean(winnings)
+
+def calculate_cumulative_average(winnings):
+    return np.cumsum(winnings) / np.arange(1, len(winnings) + 1)
+
+def plot_convergence(winnings, expected_value, title):
+    averages = calculate_cumulative_average(winnings)
     
-    rezultate = np.random.randint(0, 37, size = nr_simulari)
-    
-    castiguri = np.where(np.isin(rezultate, winning_numbers), cota, -1)
-    
-    return castiguri
+    plt.figure(figsize=(10, 6))
+    plt.plot(averages, label="Estimare Monte Carlo")
+    plt.axhline(expected_value, linestyle="--", color="red", label="Valoare Teoretică")
 
-def calculeaza_castig_mediu(castiguri):
-    return np.mean(castiguri)
-
-def calculeaza_medie_cumulativa(castiguri):
-    return np.cumsum(castiguri) / np.arange(1, len(castiguri) + 1)
-
-def plot_convergenta(castiguri, valoare_teoretica, titlu):
-    medii = calculeaza_medie_cumulativa(castiguri)
-
-    plt.figure()
-    plt.plot(medii, color = "blue", label = "Estimare Monte Carlo")
-    plt.axhline(valoare_teoretica, linestyle = "--", color = "red", alpha = 0.5, label = "Valoare teoretică")
-
-    plt.xlim(1, len(medii))
-    
-    ylim_min = min(valoare_teoretica - 0.1, np.min(medii[100:]))
-    ylim_max = max(valoare_teoretica + 0.1, np.max(medii[100:]))
-    plt.ylim(ylim_min, ylim_max)
-
-    plt.xlabel("Număr de simulări")
-    plt.ylabel("Câștig mediu")
-    plt.title(titlu)
+    plt.xlabel("Simulări")
+    plt.ylabel("Media Câștigurilor")
+    plt.title(title)
     plt.legend()
-    plt.show()
+    plt.grid(True, alpha=0.3)
+    plt.savefig(f"{title.replace(' ', '_').lower()}.png")
 
 def main():
-    nr_simulari = 1000000
-    valoare_teoretica = - 1 / 37
+    n_sims = 100000
+    expected_val = -1 / 37
 
-    print("--- Simulare Ruletă ---")
+    print("--- Roulette Simulation ---")
 
-    print("1. Pariu pe ROȘU")
-    castiguri_rosu = simulare_ruleta(nr_simulari, "red_black", "roșu")
-    print(f"   Câștig mediu estimat: {calculeaza_castig_mediu(castiguri_rosu):.5f}")
-    plot_convergenta(castiguri_rosu, valoare_teoretica, "Convergența - Pariu pe Roșu")
+    print("1. Bet on RED")
+    res_red = simulate_roulette(n_sims, "red_black", "red")
+    print(f"   Estimated Average Win: {calculate_average_win(res_red):.5f}")
 
-    print("\n2. Pariu pe STRAIGHT (7)")
-    castiguri_7 = simulare_ruleta(nr_simulari, "straight", 7)
-    print(f"   Câștig mediu estimat: {calculeaza_castig_mediu(castiguri_7):.5f}")
-    plot_convergenta(castiguri_7, valoare_teoretica, "Convergența - Pariu pe numărul 7")
+    print("\n2. Bet on STRAIGHT (7)")
+    res_7 = simulate_roulette(n_sims, "straight", 7)
+    print(f"   Estimated Average Win: {calculate_average_win(res_7):.5f}")
 
-    print("\n3. Pariu pe STREET (start 1 -> [1, 2, 3])")
-    castiguri_street = simulare_ruleta(nr_simulari, "street", 1)
-    print(f"   Câștig mediu estimat: {calculeaza_castig_mediu(castiguri_street):.5f}")
+    print("\n3. Bet on STREET ([1, 2, 3])")
+    res_street = simulate_roulette(n_sims, "street", [1, 2, 3])
+    print(f"   Estimated Average Win: {calculate_average_win(res_street):.5f}")
     
-    print("\n4. Pariu pe SNAKE")
-    castiguri_snake = simulare_ruleta(nr_simulari, "snake")
-    print(f"   Câștig mediu estimat: {calculeaza_castig_mediu(castiguri_snake):.5f}")
+    print("\n4. Bet on SNAKE")
+    res_snake = simulate_roulette(n_sims, "snake")
+    print(f"   Estimated Average Win: {calculate_average_win(res_snake):.5f}")
 
-    print("\n5. Pariu pe FIRST FOUR (0, 1, 2, 3)")
-    castiguri_ff = simulare_ruleta(nr_simulari, "first_four")
-    print(f"   Câștig mediu estimat: {calculeaza_castig_mediu(castiguri_ff):.5f}")
+    print("\n5. Bet on CORNER ([1, 2, 4, 5])")
+    res_corner = simulate_roulette(n_sims, "corner", [1, 2, 4, 5])
+    print(f"   Estimated Average Win: {calculate_average_win(res_corner):.5f}")
 
 if __name__ == '__main__':
     main()

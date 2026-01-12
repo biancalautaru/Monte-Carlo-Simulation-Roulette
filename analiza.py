@@ -1,42 +1,42 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def calculeaza_estimari(indicator_ruina, runde_pana_la_oprire, capital_final):
+def calculate_estimates(ruin_indicator, rounds_played, final_capital):
     return {
-        "Probabilitate ruină": np.mean(indicator_ruina),
-        "Timp mediu până la oprire": np.mean(runde_pana_la_oprire),
-        "Capital mediu final": np.mean(capital_final)
+        "Ruin Probability": np.mean(ruin_indicator),
+        "Average Time to Stop": np.mean(rounds_played),
+        "Average Final Capital": np.mean(final_capital)
     }
 
-def interval_incredere_tlc(x):
+def confidence_interval_clt(x):
     n = len(x)
     z = 1.96
-    miu = np.mean(x)
-    sigma2 = np.var(x, ddof = 1)
+    mean = np.mean(x)
+    variance = np.var(x, ddof=1)
 
-    eroare = z * np.sqrt(sigma2 / n)
+    error = z * np.sqrt(variance / n)
 
-    return miu - eroare, miu + eroare
+    return mean - error, mean + error
 
-def plot_convergenta_tlc(x, titlu):
+def plot_convergence_clt(x, title):
     n = len(x)
-    medii = np.cumsum(x) / np.arange(1, n + 1)
+    averages = np.cumsum(x) / np.arange(1, n + 1)
 
     z = 1.96
-    miu = np.mean(x)
-    sigma2 = np.var(x, ddof = 1)
+    mean = np.mean(x)
+    variance = np.var(x, ddof=1)
 
     k = np.arange(1, n + 1)
-    eroare = z * np.sqrt(sigma2 / k)
+    error = z * np.sqrt(variance / k)
 
     plt.figure()
-    plt.plot(medii, label = r"$\bar{S}_k$")
-    plt.axhline(miu, color="red", linestyle="--", label=r"$\hat{\mu}$")
+    plt.plot(averages, label=r"$\bar{S}_k$")
+    plt.axhline(mean, color="red", linestyle="--", label=r"$\hat{\mu}$")
 
-    plt.fill_between(k, miu - eroare, miu + eroare, color="red", alpha=0.2, label=r"$\pm z\sqrt{\sigma^2/k}$" )
+    plt.fill_between(k, mean - error, mean + error, color="red", alpha=0.2, label=r"$\pm z\sqrt{\sigma^2/k}$" )
 
-    plt.xlabel("Număr simulări (k)")
-    plt.ylabel("Estimare")
-    plt.title(titlu)
+    plt.xlabel("Number of Simulations (k)")
+    plt.ylabel("Estimate")
+    plt.title(title)
     plt.legend()
-    plt.show()
+    # plt.show()

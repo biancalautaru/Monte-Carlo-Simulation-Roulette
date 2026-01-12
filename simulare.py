@@ -1,30 +1,31 @@
-from monte_carlo import ruleaza_monte_carlo
-from analiza import calculeaza_estimari, interval_incredere_tlc, plot_convergenta_tlc
+from monte_carlo import run_monte_carlo
+from analiza import calculate_estimates, confidence_interval_clt, plot_convergence_clt
 
 def main():
-    nr_simulari = 10000
-    capital_initial = 100
-    max_runde = 1000
-    prob_castig = 18 / 37
+    num_simulations = 10000
+    initial_capital = 100
+    max_rounds = 1000
+    win_prob = 18 / 37
 
-    indicator_ruina, runde_pana_la_oprire, capital_final = ruleaza_monte_carlo(nr_simulari, capital_initial, max_runde, prob_castig)
+    ruin_indicator, rounds_played, final_capital = run_monte_carlo(num_simulations, initial_capital, max_rounds, win_prob)
 
-    estimari = calculeaza_estimari(indicator_ruina, runde_pana_la_oprire, capital_final)
-    print("Estimări Monte Carlo:")
-    for k, v in estimari.items():
+    estimates = calculate_estimates(ruin_indicator, rounds_played, final_capital)
+    print("Monte Carlo Estimates:")
+    for k, v in estimates.items():
         print(f"  {k}: {v:.5f}")
 
-    ic_ruina = interval_incredere_tlc(indicator_ruina)
-    ic_timp = interval_incredere_tlc(runde_pana_la_oprire)
-    ic_capital = interval_incredere_tlc(capital_final)
-    print("\nIntervale de încredere 95%:")
-    print(f"  P(ruină): [{ic_ruina[0]:.5f}, {ic_ruina[1]:.5f}]")
-    print(f"  E[timp]: [{ic_timp[0]:.5f}, {ic_timp[1]:.5f}]")
-    print(f"  E[capital]: [{ic_capital[0]:.5f}, {ic_capital[1]:.5f}]")
+    ci_ruin = confidence_interval_clt(ruin_indicator)
+    ci_time = confidence_interval_clt(rounds_played)
+    ci_capital = confidence_interval_clt(final_capital)
+    
+    print("\n95% Confidence Intervals:")
+    print(f"  P(ruin): [{ci_ruin[0]:.5f}, {ci_ruin[1]:.5f}]")
+    print(f"  E[time]: [{ci_time[0]:.5f}, {ci_time[1]:.5f}]")
+    print(f"  E[capital]: [{ci_capital[0]:.5f}, {ci_capital[1]:.5f}]")
 
-    plot_convergenta_tlc(indicator_ruina, "Convergența estimării P(ruină)")
-    plot_convergenta_tlc(runde_pana_la_oprire, "Convergența estimării E[timp]")
-    plot_convergenta_tlc(capital_final, "Convergența estimării E[capital]")
+    # plot_convergence_clt(ruin_indicator, "Convergence of P(ruin) Estimate")
+    # plot_convergence_clt(rounds_played, "Convergence of E[time] Estimate")
+    # plot_convergence_clt(final_capital, "Convergence of E[capital] Estimate")
 
 if __name__ == '__main__':
     main()
