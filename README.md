@@ -77,3 +77,8 @@ Pentru rularea simulării, parametrii pot fi ajustați în fișierul `constants.
 ```bash
 python3 main.py
 ```
+## Referințe bibliografice
+- [Roulette - Wikipedia](https://en.wikipedia.org/wiki/Roulette)
+- [Gambling with the Martingale Strategy - Numberphile](https://www.youtube.com/watch?v=zTsRGQj6VT4)
+- [Finite Math: Markov Chain Example - The Gambler's Ruin](https://www.youtube.com/watch?v=afIhgiHVnj0)
+- [Playing Roulette with Monte Carlo](https://medium.com/@walter_sperat/playing-roulette-with-monte-carlo-88f4a8de65ff)
