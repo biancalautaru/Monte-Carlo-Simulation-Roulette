@@ -52,7 +52,7 @@ Fișierul `analysis.py` conține funcții pentru prelucrarea rezultatelor obțin
 - estimatori Monte Carlo pentru probabilitatea de ruină, timpul mediu până la oprire și capitalul final mediu
 - intervale de încredere de 95%, bazate pe *Teorema Limită Centrală*
 - grafice de convergență ale estimărilor Monte Carlo
-Graficele ilustrează evoluția mediei cumulative a estimărilor și evidențiază rata de convergență de ordinul \frac{1}{\sqrt{n}}.
+Graficele ilustrează evoluția mediei cumulative a estimărilor și evidențiază rata de convergență de ordinul $\frac{1}{\sqrt{n}}$.
 
 ## Scriptul principal(`main.py`)
 
