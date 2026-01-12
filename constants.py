@@ -35,21 +35,23 @@ CORNER_BETS = np.array([(1, 2, 4, 5), (2, 3, 5, 6), (4, 5, 7, 8), (5, 6, 8, 9), 
 
 DOUBLE_STREET_BETS = np.array([(1, 2, 3, 4, 5, 6), (4, 5, 6, 7, 8, 9), (7, 8, 9, 10, 11, 12), (10, 11, 12, 13, 14, 15), (13, 14, 15, 16, 17, 18), (16, 17, 18, 19, 20, 21), (19, 20, 21, 22, 23, 24), (22, 23, 24, 25, 26, 27), (25, 26, 27, 28, 29, 30), (28, 29, 30, 31, 32, 33), (31, 32, 33, 34, 35, 36)])
 
-RED_BETS = np.array([1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36])
-
-BLACK_BETS = np.array([2, 4, 6, 8, 10, 11, 13, 15, 17, 20, 22, 24, 26, 28, 29, 31, 33, 35])
+DOZEN_BETS = np.array([np.arange(1, 13), np.arange(13, 25), np.arange(25, 37)])
 
 COLUMN_BETS = np.array([np.array([1 + i * 3 for i in range(12)]), np.array([2 + i * 3 for i in range(12)]), np.array([3 + i * 3 for i in range(12)])])
 
 SNAKE_BETS = np.array([1, 5, 9, 12, 14, 16, 19, 23, 27, 30, 32, 34])
 
-DOZEN_BETS = np.array([np.arange(1, 13), np.arange(13, 25), np.arange(25, 37)])
+EVEN_ODD_BETS = np.array([np.arange(2, 37, 2), np.arange(1, 37, 2)])
 
-LOW_BETS = np.arange(1, 19)
+LOW_HIGH_BETS = np.array([np.arange(1, 19), np.arange(19, 37)])
 
-HIGH_BETS = np.arange(19, 37)
+COLOUR_BETS = np.array([np.array([1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36]), np.array([2, 4, 6, 8, 10, 11, 13, 15, 17, 20, 22, 24, 26, 28, 29, 31, 33, 35])])
 
-EVEN_BETS = np.arange(2, 37, 2)
+RED_BETS = COLOUR_BETS[0]
+BLACK_BETS = COLOUR_BETS[1]
 
-ODD_BETS = np.arange(1, 37, 2)
+EVEN_BETS = EVEN_ODD_BETS[0]
+ODD_BETS = EVEN_ODD_BETS[1]
 
+LOW_BETS = LOW_HIGH_BETS[0]
+HIGH_BETS = LOW_HIGH_BETS[1]

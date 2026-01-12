@@ -1,11 +1,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def calculate_estimates(ruin_indicator, rounds_played, final_capital):
+def compute_estimates(ruin_indicator, rounds_played, final_capital):
     return {
-        "Ruin Probability": np.mean(ruin_indicator),
-        "Average Time to Stop": np.mean(rounds_played),
-        "Average Final Capital": np.mean(final_capital)
+        "ruin_probability": np.mean(ruin_indicator),
+        "average_time_to_stop": np.mean(rounds_played),
+        "average_final_capital": np.mean(final_capital)
     }
 
 def confidence_interval_clt(x):
@@ -35,8 +35,10 @@ def plot_convergence_clt(x, title):
 
     plt.fill_between(k, mean - error, mean + error, color="red", alpha=0.2, label=r"$\pm z\sqrt{\sigma^2/k}$" )
 
-    plt.xlabel("Number of Simulations (k)")
-    plt.ylabel("Estimate")
+    plt.xlabel("number of simulations (k)")
+    plt.ylabel("estimate")
     plt.title(title)
     plt.legend()
-    # plt.show()
+    plt.savefig(f"{title.replace(' ', '_').lower()}.png")
+    plt.close()
+    

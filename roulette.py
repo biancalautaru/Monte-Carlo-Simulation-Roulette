@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import constante as c
+import constants as c
 
 SIMPLE_BETS_MAP = {
     "red": c.RED_BETS,
@@ -28,8 +28,6 @@ def get_winning_numbers(bet_type, bet_data):
     if bet_type == "snake":
         return c.SNAKE_BETS
         
-    # For split, street, corner, double_street, basket, first_four, top_line
-    # we assume bet_data is the list of winning numbers.
     return bet_data
 
 def simulate_roulette(num_simulations, bet_type, bet_data=None):
@@ -60,32 +58,3 @@ def plot_convergence(winnings, expected_value, title):
     plt.legend()
     plt.grid(True, alpha=0.3)
     plt.savefig(f"{title.replace(' ', '_').lower()}.png")
-
-def main():
-    n_sims = 100000
-    expected_val = -1 / 37
-
-    print("--- Roulette Simulation ---")
-
-    print("1. Bet on RED")
-    res_red = simulate_roulette(n_sims, "red_black", "red")
-    print(f"   Estimated Average Win: {calculate_average_win(res_red):.5f}")
-
-    print("\n2. Bet on STRAIGHT (7)")
-    res_7 = simulate_roulette(n_sims, "straight", 7)
-    print(f"   Estimated Average Win: {calculate_average_win(res_7):.5f}")
-
-    print("\n3. Bet on STREET ([1, 2, 3])")
-    res_street = simulate_roulette(n_sims, "street", [1, 2, 3])
-    print(f"   Estimated Average Win: {calculate_average_win(res_street):.5f}")
-    
-    print("\n4. Bet on SNAKE")
-    res_snake = simulate_roulette(n_sims, "snake")
-    print(f"   Estimated Average Win: {calculate_average_win(res_snake):.5f}")
-
-    print("\n5. Bet on CORNER ([1, 2, 4, 5])")
-    res_corner = simulate_roulette(n_sims, "corner", [1, 2, 4, 5])
-    print(f"   Estimated Average Win: {calculate_average_win(res_corner):.5f}")
-
-if __name__ == '__main__':
-    main()
