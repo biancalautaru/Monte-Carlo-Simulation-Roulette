@@ -1,11 +1,12 @@
 import numpy as np
 import strategies
 
-def simulate_roulette_session(initial_capital, max_rounds, win_prob, payout, strategy_func):
+def simulate_roulette_session(initial_capital, max_rounds, win_prob, payout, strategy_func, return_history=False):
     capital = initial_capital
     round_num = 0
     current_bet = 1
     last_win = True
+    history = [capital] if return_history else None
     
     while capital > 0 and round_num < max_rounds:
         round_num += 1
@@ -19,7 +20,13 @@ def simulate_roulette_session(initial_capital, max_rounds, win_prob, payout, str
         else:
             capital -= current_bet
             last_win = False
+        
+        if return_history:
+            history.append(capital)
             
+    if return_history:
+        return history
+
     is_ruined = 1 if capital == 0 else 0
     return is_ruined, round_num, capital
 

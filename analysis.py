@@ -29,16 +29,16 @@ def plot_convergence_clt(x, title):
     k = np.arange(1, n + 1)
     error = z * np.sqrt(variance / k)
 
-    plt.figure()
-    plt.plot(averages, label=r"$\bar{S}_k$")
-    plt.axhline(mean, color="red", linestyle="--", label=r"$\hat{\mu}$")
+    plt.figure(figsize=(10, 6))
+    plt.plot(averages, label=r"$\bar{S}_k$ (Estimate)")
+    plt.axhline(mean, color="red", linestyle="--", label=r"$\hat{\mu}$ (Mean)")
+    plt.fill_between(k, mean - error, mean + error, color="red", alpha=0.2, label="95% CI")
 
-    plt.fill_between(k, mean - error, mean + error, color="red", alpha=0.2, label=r"$\pm z\sqrt{\sigma^2/k}$" )
-
-    plt.xlabel("number of simulations (k)")
-    plt.ylabel("estimate")
+    plt.xlabel("Number of Simulations (k)")
+    plt.ylabel("Estimate Value")
     plt.title(title)
     plt.legend()
+    plt.grid(True, alpha=0.3)
+    plt.tight_layout()
     plt.savefig(f"{title.replace(' ', '_').lower()}.png")
     plt.close()
-    
